@@ -6,8 +6,11 @@ version() {
 }
 
 usage() {
-	echo "usage: git where <searchpath>"
+	echo "usage: git where <search_path> [-e <exclude_path>...]"
 	echo
+	echo "options:"
+	echo "    -e <exlucde_path>...        Exclude single or multiple pathes from"
+	echo "                                the search."
 }
 
 main() {
