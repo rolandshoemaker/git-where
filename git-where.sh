@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+
+version() {
+	echo "git-where v0.0.1 - find git repositories"
+	echo
+}
+
+usage() {
+	echo "usage: git where <searchpath>"
+	echo
+}
+
+main() {
+	if [[ "$#" -lt 1 ]]; then
+		usage; exit 1
+	fi
+
+	case $1 in
+		"-h"|"--help")
+			usage; exit 0
+		;;
+		"-v"|"--version")
+			version; exit 0
+		;;
+	esac
+
+	local searchpath="$1"
+
+	if [ ! -d $searchpath ]; then
+		echo "$1 does not exist or is not a directory"
+		exit 1
+	fi
+
+	if [ "$#" -gt 3 ] && [ "$2" = "-e" ]; then
+		shift; shift
+		cmd_search "$searchpath" $@
+	else
+		cmd_search "$searchpath"
+	fi
+}
+
+cmd_search() {
+	local PLACE=$1
+	if [ "$#" -gt 1 ]; then
+		shift
+		local EXCLUDES=($@)
+	fi
+
+	local bold=`tput bold`
+	local normal=`tput sgr0`
+	local output="${bold}location\tbranch\tcommit${normal}"
+
+	if [[ ${#EXCLUDES[@]} -gt 0 ]]; then
+		EXCLUDE_CMD="-type d ("
+		for i in "${!EXCLUDES[@]}"; do
+			EXCLUDE_CMD="$EXCLUDE_CMD -path ${EXCLUDES[$i]}"
+			if [[ "$i" -lt `expr ${#EXCLUDES[@]} - 1`  ]]; then
+				EXCLUDE_CMD="$EXCLUDE_CMD -o"
+			fi
+		done
+		EXCLUDE_CMD="$EXCLUDE_CMD ) -prune -o"
+	fi
+
+	for gr in `find $PLACE $EXCLUDE_CMD -name ".git" -print -follow 2>/dev/null`; do
+		cd "$gr"
+		local commit=`git rev-parse --abbrev-ref HEAD 2>/dev/null`
+		local commit_date=`git log -1 --format=%cr 2>/dev/null`
+		local branch=`git rev-parse --short HEAD 2>/dev/null`
+		output="$output\n${gr%/*}\t$commit\t$branch\t$commit_date"
+	done
+
+	echo -e "$output" | column -t -s $'\t' | awk 'NR<2{print $0;next}{print $0| "sort"}'
+}
+
+main "$@"
