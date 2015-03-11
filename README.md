@@ -4,7 +4,7 @@ A super duper simple git sub command that helps you find where you put those rep
 
 ## Usage
 
-![example usage](usage.png))
+![example usage](usage.png)
 
 	$ git where
 	git where <search_path> [-e <exclude_path>...]
