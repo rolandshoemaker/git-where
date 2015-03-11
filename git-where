@@ -10,7 +10,8 @@ usage() {
 	echo
 	echo "options:"
 	echo "    -e <exlucde_path>...        Exclude single or multiple pathes from"
-	echo "                                the search."
+	echo "                                the search, can also be set in envvar"
+	echo "                                GIT_WHERE_EXCLUDES."
 }
 
 main() {
@@ -47,6 +48,10 @@ cmd_search() {
 	if [ "$#" -gt 1 ]; then
 		shift
 		local EXCLUDES=($@)
+	else
+		if [ ! -z GIT_WHERE_EXCLUDES ]; then
+			local EXCLUDES=($GIT_WHERE_EXCLUDES)
+		fi
 	fi
 
 	local bold=`tput bold`
