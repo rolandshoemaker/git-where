@@ -64,7 +64,7 @@ cmd_search() {
 		EXCLUDE_CMD="$EXCLUDE_CMD ) -prune -o"
 	fi
 
-	for gr in `find $PLACE $EXCLUDE_CMD -name ".git" -print -follow 2>/dev/null`; do
+	for gr in `find $PLACE $EXCLUDE_CMD -name ".git" -print -follow -type d 2>/dev/null`; do
 		cd "$gr"
 		local commit=`git rev-parse --abbrev-ref HEAD 2>/dev/null`
 		local commit_date=`git log -1 --format=%cr 2>/dev/null`
